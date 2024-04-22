@@ -1,6 +1,6 @@
 [package]
 name = "kal"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 description = "A program for recording my Knowledge Accumulation Logs"
 
@@ -8,5 +8,7 @@ description = "A program for recording my Knowledge Accumulation Logs"
 anyhow = "1.0"
 chrono = "0.4.38"
 clap = { version = "4.5.4", features = ["derive"] }
+figment = { version = "0.10", features = ["toml"] }
 inquire = "0.7.4"
 rusqlite = { version = "0.31.0", features = ["bundled"] }
+serde = { version = "1.0", features = ["derive"] }

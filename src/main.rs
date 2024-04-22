@@ -1,10 +1,17 @@
+mod backup;
 mod categories;
 mod db_ops;
 
+use anyhow::anyhow;
 use chrono::Datelike;
 use clap::{Args, Parser, Subcommand};
 use db_ops::KalRecord;
+use figment::{
+    providers::{Format, Toml},
+    Figment,
+};
 use inquire::{Select, Text};
+use serde::Deserialize;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -12,10 +19,6 @@ use inquire::{Select, Text};
 struct Cli {
     #[command(subcommand)]
     command: Commands,
-
-    /// Path of the SQLite database file
-    #[arg(long)]
-    db: String,
 }
 
 #[derive(Subcommand)]
@@ -33,17 +36,35 @@ struct LsArgs {
     all: Option<u32>,
 }
 
+#[derive(Deserialize)]
+struct Config {
+    db_path: String,
+    backup_folder: String,
+}
+
+const CONFIG_FILE_NAME: &str = "kal.config.toml";
+
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
-    let connection = db_ops::create_connection(&cli.db)?;
+    let config: Config = Figment::new()
+        .merge(Toml::file(CONFIG_FILE_NAME))
+        .extract()
+        .map_err(|e| anyhow!("configuration file ({}): {}", CONFIG_FILE_NAME, e))?;
+
+    backup::check_folder(&config.backup_folder)?;
+
+    let connection = db_ops::create_connection(&config.db_path)?;
 
     let today = chrono::Local::now();
     let year = today.year() as u32;
     let ordinal_day = today.ordinal() as u32;
 
     match &cli.command {
-        Commands::Init => db_ops::init_database(&connection)?,
+        Commands::Init => {
+            db_ops::init_database(&connection)?;
+            backup::take_backup(&config.db_path, &config.backup_folder)?;
+        }
 
         Commands::Commit => {
             let category_ans =
@@ -62,10 +83,13 @@ fn main() -> anyhow::Result<()> {
                     details: (!details_ans.is_empty()).then(|| details_ans),
                 },
             )?;
+
+            backup::take_backup(&config.db_path, &config.backup_folder)?;
         }
 
         Commands::Reset => {
             db_ops::delete_records_ordinal(&connection, year, ordinal_day)?;
+            backup::take_backup(&config.db_path, &config.backup_folder)?;
         }
 
         Commands::Ls(args) => {

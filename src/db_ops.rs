@@ -13,7 +13,7 @@ impl fmt::Display for KalRecord {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "{}-{}: {}: {}",
+            "{}-{} | {}: {}",
             self.year,
             self.ordinal_day,
             self.category,
@@ -26,7 +26,6 @@ pub fn create_connection(url: &str) -> anyhow::Result<Connection> {
     let conn = Connection::open_with_flags(
         url,
         OpenFlags::SQLITE_OPEN_READ_WRITE
-            | OpenFlags::SQLITE_OPEN_CREATE
             | OpenFlags::SQLITE_OPEN_URI
             | OpenFlags::SQLITE_OPEN_NO_MUTEX,
     )?;
