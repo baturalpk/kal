@@ -2,6 +2,8 @@ mod backup;
 mod categories;
 mod db_ops;
 
+use std::path::Path;
+
 use anyhow::anyhow;
 use chrono::Datelike;
 use clap::{Args, Parser, Subcommand};
@@ -42,15 +44,25 @@ struct Config {
     backup_folder: String,
 }
 
+const CONFIG_PATH_ENV_KEY: &str = "KAL_CONFIG_PATH";
 const CONFIG_FILE_NAME: &str = "kal.config.toml";
 
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
+    let config_dir_path = std::env::var(CONFIG_PATH_ENV_KEY).unwrap_or(".".to_string());
+    let config_file_path = Path::new(&config_dir_path).join(CONFIG_FILE_NAME);
+
     let config: Config = Figment::new()
-        .merge(Toml::file(CONFIG_FILE_NAME))
+        .merge(Toml::file(&config_file_path))
         .extract()
-        .map_err(|e| anyhow!("configuration file ({}): {}", CONFIG_FILE_NAME, e))?;
+        .map_err(|e| {
+            anyhow!(
+                "configuration file ('{}') does not exist or {}",
+                &config_file_path.to_str().unwrap(),
+                e
+            )
+        })?;
 
     backup::check_folder(&config.backup_folder)?;
 
