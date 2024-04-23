@@ -1,0 +1,2 @@
+db_path = "test.db"
+backup_folder = "./temp/"

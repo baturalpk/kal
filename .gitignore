@@ -1,4 +1,4 @@
 /target
+/temp
 
 **/*.db
-**/*config.toml

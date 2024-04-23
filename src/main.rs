@@ -2,6 +2,7 @@ mod backup;
 mod categories;
 mod db_ops;
 
+use std::env;
 use std::path::Path;
 
 use anyhow::anyhow;
@@ -25,15 +26,20 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Applies initial migration(s) for a newly created database file.
+    /// New database files must be created manually at the provided "db_path" location.
     Init,
+    /// Creates a new KAL record.
     Commit,
+    /// Deletes all KAL records committed today.
     Reset,
+    /// Lists KAL records committed only today if no argument's provided.
     Ls(LsArgs),
 }
 
 #[derive(Args)]
 struct LsArgs {
-    /// Lists all records at the given year
+    /// Lists all records at the given year.
     #[arg(short, long, value_name = "YEAR")]
     all: Option<u32>,
 }
@@ -50,16 +56,17 @@ const CONFIG_FILE_NAME: &str = "kal.config.toml";
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
-    let config_dir_path = std::env::var(CONFIG_PATH_ENV_KEY).unwrap_or(".".to_string());
-    let config_file_path = Path::new(&config_dir_path).join(CONFIG_FILE_NAME);
-
     let config: Config = Figment::new()
-        .merge(Toml::file(&config_file_path))
+        .merge(Toml::file(CONFIG_FILE_NAME))
+        .join(Toml::file(
+            Path::new(&env::var(CONFIG_PATH_ENV_KEY).unwrap_or(".".to_string()))
+                .join(CONFIG_FILE_NAME),
+        ))
         .extract()
         .map_err(|e| {
             anyhow!(
                 "configuration file ('{}') does not exist or {}",
-                &config_file_path.to_str().unwrap(),
+                CONFIG_FILE_NAME,
                 e
             )
         })?;
