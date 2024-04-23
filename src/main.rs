@@ -1,5 +1,4 @@
 mod backup;
-mod categories;
 mod db_ops;
 
 use std::env;
@@ -48,6 +47,7 @@ struct LsArgs {
 struct Config {
     db_path: String,
     backup_folder: String,
+    categories: Vec<String>,
 }
 
 const CONFIG_PATH_ENV_KEY: &str = "KAL_CONFIG_PATH";
@@ -86,8 +86,7 @@ fn main() -> anyhow::Result<()> {
         }
 
         Commands::Commit => {
-            let category_ans =
-                Select::new("Select the category:", categories::get_all()).prompt()?;
+            let category_ans = Select::new("Select the category:", config.categories).prompt()?;
 
             let details_ans = Text::new("Details:")
                 .prompt()

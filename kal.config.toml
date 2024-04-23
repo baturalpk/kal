@@ -1,2 +1,22 @@
 db_path = "test.db"
 backup_folder = "./temp/"
+
+# An example set of categories to commit
+categories = [
+    "Artificial Intelligence",
+    "Astronomy",
+    "Audio & Music",
+    "Biotechnology",
+    "Career Planning",
+    "Computer Graphics",
+    "Computer Networking",
+    "Distributed Systems",
+    "Electronics & Embedded Systems",
+    "Filmmaking",
+    "Game Development",
+    "General Purpose Programming",
+    "Philosophy",
+    "Quantum Computing",
+    "Robotics",
+    "XR Development",
+]
