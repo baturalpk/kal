@@ -46,7 +46,7 @@ pub fn init_database(conn: &Connection) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub fn upsert_record(conn: &Connection, r: &KalRecord) -> anyhow::Result<()> {
+pub fn insert_record(conn: &Connection, r: &KalRecord) -> anyhow::Result<()> {
     conn.execute(
         "INSERT INTO kal_records (year, ordinal_day, category, details) VALUES (?1, ?2, ?3, ?4);",
         params![r.year, r.ordinal_day, r.category, r.details],

@@ -92,7 +92,7 @@ fn main() -> anyhow::Result<()> {
                 .prompt()
                 .unwrap_or_else(|_| "".to_string());
 
-            db_ops::upsert_record(
+            db_ops::insert_record(
                 &connection,
                 &KalRecord {
                     year,
