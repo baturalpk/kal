@@ -82,7 +82,7 @@ fn main() -> anyhow::Result<()> {
             let category_ans =
                 Select::new("Select the category:", categories::get_all()).prompt()?;
 
-            let details_ans = Text::new("Details: ")
+            let details_ans = Text::new("Details:")
                 .prompt()
                 .unwrap_or_else(|_| "".to_string());
 
