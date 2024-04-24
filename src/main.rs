@@ -29,11 +29,13 @@ enum Commands {
     /// New database files must be created manually at the provided "db_path" location.
     Init,
     /// Creates a new KAL record.
+    #[clap(visible_alias = "cm")]
     Commit,
     /// Deletes all KAL records committed today.
     Reset,
     /// Lists KAL records committed only today if no argument's provided.
-    Ls(LsArgs),
+    #[clap(visible_alias = "ls")]
+    List(LsArgs),
 }
 
 #[derive(Args)]
@@ -110,7 +112,7 @@ fn main() -> anyhow::Result<()> {
             backup::take_backup(&config.db_path, &config.backup_folder)?;
         }
 
-        Commands::Ls(args) => {
+        Commands::List(args) => {
             let records = match args.all {
                 Some(year) => db_ops::query_records_year(&connection, year)?,
                 None => db_ops::query_record_ordinal(&connection, year, ordinal_day)?,
