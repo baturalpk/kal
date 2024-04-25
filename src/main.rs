@@ -89,10 +89,7 @@ fn main() -> anyhow::Result<()> {
 
         Commands::Commit => {
             let category_ans = Select::new("Select the category:", config.categories).prompt()?;
-
-            let details_ans = Text::new("Details:")
-                .prompt()
-                .unwrap_or_else(|_| "".to_string());
+            let details_ans = Text::new("Details:").prompt()?;
 
             db_ops::insert_record(
                 &connection,
